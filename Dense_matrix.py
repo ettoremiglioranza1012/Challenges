@@ -67,7 +67,7 @@ class DenseMatrix():
 
     @staticmethod
     def isclose_son(m1, m2, delta):
-        # Staticmethod to return Bool value 
+        # Staticmethod to return Bool value, cause I don't need 'self'
         for i, row in enumerate(m1):
             for k in range(len(row)): 
                 if abs(m1[i][k] - m2[i][k]) > delta:
