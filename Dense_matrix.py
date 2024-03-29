@@ -4,7 +4,7 @@ class DenseMatrix():
     '''__Constructor__'''
     
     def __init__(self, *args):
-        # Self is now a DenseMatrix instance, meanwhile 
+        # 'self' refers to the instance of the class being created, meanwhile 
         # *args is a tuple with len == number of args.
         
         if len(args) == 1: # List of list
@@ -67,7 +67,7 @@ class DenseMatrix():
 
     @staticmethod
     def isclose_son(m1, m2, delta):
-        # Func. to return Bool value 
+        # Staticmethod to return Bool value 
         for i, row in enumerate(m1):
             for k in range(len(row)): 
                 if abs(m1[i][k] - m2[i][k]) > delta:
