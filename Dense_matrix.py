@@ -49,7 +49,7 @@ class DenseMatrix():
     def shape(self):
         # Give shape of the matrix
         mat = self._cells
-        return len(mat), len(mat[0])
+        return (len(mat), len(mat[0]))
     
     def nonzero(self):
         # Return a list of triplets (row index, column index, value) of non-zero cells,
@@ -59,7 +59,7 @@ class DenseMatrix():
         for i, row  in enumerate(mat):
             row_ind = i + 1
             for k,col in enumerate(row):  
-               col_ind = k+1
+               col_ind = k + 1
                if col != 0:
                    trip = (row_ind,col_ind,col)
                    nonzero_triplets.append(trip)  
@@ -108,56 +108,83 @@ class DenseMatrix():
     def __getitem__(self, key):
         # Overrides default bracket access behaviour.
         # Key is whatever the user passes within the brackets
-        if isinstance (key, list):
+        if isinstance (key, tuple):
             n_row, n_col = key
             mat = self.get_cells()
-            if n_row == 0 or n_col == 0:
-                    raise ValueError('Provided data must must match with a matrix with at least one row and one column')
-            
             if n_row < 0:
                 if n_row < -len(mat):
                     raise IndexError('Row index out of range')
                 else:
                     n_row += len(mat)
             else:
-                n_row -= 1
-                if n_row >= len(mat):
+                len_mat = n_row + 1
+                if len_mat >= len(mat):
                     raise IndexError('Row index out of range')
-            
             if n_col < 0:
                 if n_col < -len(mat[0]):
                     raise IndexError('Column index out of range')
                 else:
                     n_col += len(mat[0])
             else:
-                n_col -= 1
-                if n_col >= len(mat[0]):
+                len_col = n_col + 1
+                if len_col >= len(mat[0]):
                     raise IndexError('Column index out of range')
-            
+
             for i, row in enumerate(mat):
-                for k in range(len(row)): 
+                for k in range(len(row)):
                     if i == n_row and k == n_col:
+                        print(mat[i][k])
                         return mat[i][k]
         else: 
             raise TypeError('Provided key must be a list')
+    
+    def __eq__(self, other):
+        # Overrides an equality operator
+        mat1 = self._cells
+        mat2 = other._cells
+        if type(other) == DenseMatrix:
+            if self.shape() == other.shape():
+                equal = True
+                for i, row in enumerate(mat1):
+                    for k in range(len(row)): 
+                        if mat1[i][k] != mat2[i][k]:
+                            equal = False
+                            break
+                    if equal == False:
+                        break 
+                if equal == True:
+                    print(True)
+                else:
+                    print(False)
+            else:
+                print(False)
+        else:
+            print(False)
+    
+    def __add__(self, other):
+        # overrides sum operators
+        mat1 = self._cells
+        if type(other) is DenseMatrix:
+            if self.shape() == other.shape():
+                mat2 = other._cells
+                sum_mat = []
+                for i, row in enumerate(mat1):
+                    sum_mat.append([])
+                    for k in range(len(row)): 
+                        sum_mat[i].append(mat1[i][k] + mat2[i][k])
+                sum_mat = DenseMatrix(sum_mat)
+                sum_mat.__str__()
+                
 # Main
 def main():
 
-    # dma:
-    n = 3
-    m = 4
-    triplets = [(0,1,6),(0,2,8),(1,3,5),(2,0,9),(2,2,7)]
-    dma = DenseMatrix(n,m,triplets)
+    dma = DenseMatrix([ [0,6,8,0],
+                        [0,0,0,5],
+                        [9,0,7,0] ])
 
-    # dmd:
-    input = [[0,5.9,8,0],[0,0,0.1,5],[9.15,-0.1,7,0.1]]
-    ## input = [[0,5.9,8],[0,0, 0.1],[9.15,-0.1,7]]
-    dmd = DenseMatrix(input)
-    # delta:
-    delta = 0.2
-    
-    # Tests:
-    dma.isclose(dmd, delta)
-
+    dmc = DenseMatrix([ [1,2,3,4],
+                        [6,7,8,9],
+                        [10,11,12,13] ])
+    dma[0,2]
 if __name__ == '__main__':
     main()
