@@ -39,7 +39,7 @@ class DenseMatrix():
     '''Methods'''
     
     def mat_deepcopy(self, ll):
-        # Perform a deep copy of the input list of list hjlkl
+        # Perform a deep copy of the input list of list 
         return [row[:] for row in ll]
 
     def get_cells(self):
@@ -89,16 +89,23 @@ class DenseMatrix():
     def __str__(self):
         # RETURN a nice human-readable formatted string
         mat = self._cells
+        output = []
+        # list of string
         for i, row in enumerate(mat):
             if i == 0:
+                # first row visualization
                 if len(mat) == 1:
-                    print('DenseMatrix [ ' + f'{row} ]')
+                    output.append('DenseMatrix [ ' + f'{row} ]')
                 else:
-                    print('DenseMatrix [ ' + f'{row}')
+                    output.append('DenseMatrix [ ' + f'{row}')
             elif i == (len(mat)-1):
-                print('              ' + f'{row} ]')
+                # middle rows visual.
+                output.append('              ' + f'{row} ]')
             else:
-                print('              ' + f'{row}')
+                # end row visual.
+                output.append('              ' + f'{row}')
+        # joining strings in final visual.
+        return '\n'.join(output)
     
     def __repr__(self):
         # RETURN one-line string representing a Python expression which would recreate the matrix
@@ -111,7 +118,9 @@ class DenseMatrix():
         if isinstance (key, tuple):
             n_row, n_col = key
             mat = self.get_cells()
+            # checking row index
             if n_row < 0:
+                # handling negative index case
                 if n_row < -len(mat):
                     raise IndexError('Row index out of range')
                 else:
@@ -120,7 +129,9 @@ class DenseMatrix():
                 len_mat = n_row + 1
                 if len_mat >= len(mat):
                     raise IndexError('Row index out of range')
+            # checking col index
             if n_col < 0:
+                # handling neg. index case
                 if n_col < -len(mat[0]):
                     raise IndexError('Column index out of range')
                 else:
@@ -141,13 +152,14 @@ class DenseMatrix():
     def __eq__(self, other):
         # Overrides an equality operator
         mat1 = self._cells
-        mat2 = other._cells
         if type(other) == DenseMatrix:
+            mat2 = other._cells
             if self.shape() == other.shape():
                 equal = True
                 for i, row in enumerate(mat1):
                     for k in range(len(row)): 
                         if mat1[i][k] != mat2[i][k]:
+                            # checking equality
                             equal = False
                             break
                     if equal == False:
@@ -162,7 +174,7 @@ class DenseMatrix():
             print(False)
     
     def __add__(self, other):
-        # overrides sum operators
+        # overrides sum operator
         mat1 = self._cells
         if type(other) is DenseMatrix:
             if self.shape() == other.shape():
@@ -172,19 +184,84 @@ class DenseMatrix():
                     sum_mat.append([])
                     for k in range(len(row)): 
                         sum_mat[i].append(mat1[i][k] + mat2[i][k])
-                sum_mat = DenseMatrix(sum_mat)
-                sum_mat.__str__()
-                
+                return DenseMatrix(sum_mat)
+            
+        elif isinstance(other, list):
+            n,m = self.shape()
+            if n == len(other) or m == len(other[0]):
+                sum_mat = []
+                for i, row in enumerate(mat1):
+                    sum_mat.append([])
+                    for k in range(len(row)): 
+                        sum_mat[i].append(mat1[i][k] + other[i][k])
+                return DenseMatrix(sum_mat)
+        else:
+            raise ValueError('Not a DenseMatrix or any other matrix')
+
+    def __mul__(self, other):
+        # Overrides mul operator
+        mat1 = self._cells
+        if type(other) is DenseMatrix:
+            _, m1 = self.shape()
+            n2, m2 = other.shape()
+            if m1 == n2:
+                mat2 = other._cells
+                mol_mat = []
+                for row in mat1:
+                    mol_mat_row = []
+                    for j in range(m2):
+                        cell_sum = 0
+                        for k in range(len(row)):
+                            cell_sum += row[k]*mat2[k][j] 
+                        mol_mat_row.append(cell_sum)
+                    mol_mat.append(mol_mat_row)
+                return DenseMatrix(mol_mat)
+            else:
+                raise ValueError('First matrix\'s column not equal to second matrix\'s row')
+            
+        elif isinstance(other, list):
+            _, m1 = self.shape()
+            n2, m2 = len(other), len(other[0])
+            if m1 == n2:
+                mol_mat = []
+                for row in mat1:
+                    mol_mat_row = []
+                    for j in range(m2):
+                        cell_sum = 0
+                        for k in range(len(row)):
+                            cell_sum += row[k]*other[k][j] 
+                        mol_mat_row.append(cell_sum)
+                    mol_mat.append(mol_mat_row)
+                return DenseMatrix(mol_mat)
+            else:
+                raise ValueError('First matrix\'s column not equal to second matrix\'s row')
+        
+        elif isinstance(other, int) or isinstance(other, float):
+            _, m1 = self.shape()
+            mol_mat = []
+            for row in mat1:
+                mol_mat_row = []
+                for cell in row:
+                    mol_mat_row.append(cell*other)
+                mol_mat.append(mol_mat_row)
+            return DenseMatrix(mol_mat)
+        else:
+            raise ValueError('Not a DenseMatrix or any other matrix or any scalar')
+
+
 # Main
 def main():
 
     dma = DenseMatrix([ [0,6,8,0],
                         [0,0,0,5],
                         [9,0,7,0] ])
+    
+    dmc = [ [1,2,3],
+                        [6,7,8],
+                        [10,11,12],
+                        [9,0,7] ]
+    
+    print(dma * dmc)
 
-    dmc = DenseMatrix([ [1,2,3,4],
-                        [6,7,8,9],
-                        [10,11,12,13] ])
-    dma[0,2]
 if __name__ == '__main__':
     main()
