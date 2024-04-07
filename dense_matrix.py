@@ -25,7 +25,7 @@ class DenseMatrix():
             self._cells = [[0]*n_col for _ in range(n_row)]
             # Filling matrix
             for row_index, col_index, value in triplets:
-                self._cells[row_index][col_index] = value 
+                self._cells[row_index+1][col_index+1] = value 
         else:
             raise ValueError('Invalid argouments provided to build the matrix')
     
@@ -101,9 +101,20 @@ class DenseMatrix():
         return '\n'.join(output)
     
     def __repr__(self):
+        output = []
         # RETURN one-line string representing a Python expression which would recreate the matrix
         mat = self._cells
-        print(mat)
+        for i, row in enumerate(mat):
+            if i == 0: 
+                if len(mat) == 1:
+                    output.append('[ ' + f'{row} ]')
+                else:
+                    output.append('[ ' + f'{row}')
+            elif i == (len(mat) - 1):
+                output.append(f'{row} ]')
+            else:
+                output.append(f'{row}')
+        return ', '.join(output)
 
     def __getitem__(self, key):
         # Overrides default bracket access behaviour.
@@ -238,17 +249,20 @@ class DenseMatrix():
             return DenseMatrix(mol_mat)
         else:
             raise ValueError('Not a DenseMatrix or any other matrix or any scalar')
+
 # Class Test_matrix
+Mat = DenseMatrix
+#Mat = SparseMatrix
 class MatrixTest(unittest.TestCase):
 
     def test_empty(self):
         with self.assertRaises(ValueError):
-            DenseMatrix([])
+            Mat([])
     
     def test_init_list(self):
         lst = [[1,2,3],
                [4,5,6]]
-        mat = DenseMatrix(lst)
+        mat = Mat(lst)
         for i in range(len(lst)):
             for j in range(len(lst[0])):
                 self.assertEqual(mat[i,j], lst[i][j])
@@ -257,10 +271,10 @@ class MatrixTest(unittest.TestCase):
                                [4,5,6]])
 
         with self.assertRaises(ValueError):
-            DenseMatrix([[]])   
+            Mat([[]])   
 
     def test_init_triplets(self):        
-        mat = DenseMatrix(10,20, [(8,12,4), (7,9,6)])
+        mat = Mat(10,20, [(8,12,4), (7,9,6)])
 
         for i in range(10):
             for j in range(20):
@@ -270,35 +284,35 @@ class MatrixTest(unittest.TestCase):
         self.assertEqual(mat[7,9], 6)
         
         with self.assertRaises(ValueError):
-            DenseMatrix(0,0,[])
+            Mat(0,0,[])
         with self.assertRaises(ValueError):
-            DenseMatrix(-4,2,[(2,4,7)])
+            Mat(-4,2,[(2,4,7)])
         with self.assertRaises(ValueError):
-            DenseMatrix(3,-4,[(2,4,7)])
+            Mat(3,-4,[(2,4,7)])
         with self.assertRaises(ValueError):
-            DenseMatrix(5,10,[(7,1,50)])   
+            Mat(5,10,[(7,1,50)])   
         
         with self.assertRaises(ValueError):
-            DenseMatrix(5,10,[(5,1,60)])   
+            Mat(5,10,[(5,1,60)])   
         
         with self.assertRaises(ValueError):
-            DenseMatrix(6,15,[(4,16,70)])
+            Mat(6,15,[(4,16,70)])
         
         with self.assertRaises(ValueError):
-            DenseMatrix(6,15,[(4,15,70)])
+            Mat(6,15,[(4,15,70)])
 
         with self.assertRaises(ValueError):
-            DenseMatrix(6,15,[(7,19,80)])
+            Mat(6,15,[(7,19,80)])
 
         with self.assertRaises(ValueError):
-            DenseMatrix(6,15,[(4,3,80), (4,20,10)])
+            Mat(6,15,[(4,3,80), (4,20,10)])
 
         with self.assertRaises(ValueError):
-            DenseMatrix(6,15,[(4,3,80), (20,1,10)])
+            Mat(6,15,[(4,3,80), (20,1,10)])
 
     def test_str(self):
         # notice different implemenetations will have different str
-        mat = DenseMatrix([[2,5,3],
+        mat = Mat([[2,5,3],
                    [6,2,7],
                    [4,2,5]])
         s = str(mat)        
@@ -307,20 +321,20 @@ class MatrixTest(unittest.TestCase):
     def test_repr(self):
         # notice different implemenetations will have different str
         triplets = [(1,2,3), (2,0,9)]
-        mat = DenseMatrix(triplets)
+        mat = Mat(triplets)
         self.assertTrue(str(type(mat).__name__) in repr(mat))
 
     def test_shape_12(self):        
-        mat = DenseMatrix([[6,5,3], 
+        mat = Mat([[6,5,3], 
                    [2,8,3]]) 
         self.assertEqual(mat.shape(), (2,3))
 
     def test_shape_3019(self):        
-        mat = DenseMatrix(30,19,[(2,5,3)]) 
+        mat = Mat(30,19,[(2,5,3)]) 
         self.assertEqual(mat.shape(), (30,19))    
 
     def test_get_item(self):
-        mat = DenseMatrix([ [9,5,0],
+        mat = Mat([ [9,5,0],
                     [6,0,4] ]) 
         self.assertEqual(mat[0,0], 9)
         self.assertEqual(mat[1,2], 4)        
@@ -337,16 +351,17 @@ class MatrixTest(unittest.TestCase):
         with self.assertRaises(TypeError):
             mat[1,2,3]
 
+
     def test_isclose(self):
-        mat1 = DenseMatrix([(7,5,24), (2,9,13), (1,4,18)]) 
-        mat2 = DenseMatrix([(7,5,24.1), (2,9,13.1), (1,4,18.1)]) 
+        mat1 = Mat([(7,5,24), (2,9,13), (1,4,18)]) 
+        mat2 = Mat([(7,5,24.1), (2,9,13.1), (1,4,18.1)]) 
         self.assertTrue(mat1.isclose(mat2, 0.2))
         self.assertFalse(mat1.isclose(mat2, 0.05))
 
     def test_eq(self):
-        mat1 = DenseMatrix([(7,5,24), (2,9,13), (1,4,18)]) 
-        mat2 = DenseMatrix([(7,5,24), (2,9,13), (1,4,18)]) 
-        mat3 = DenseMatrix([(7,5,24), (2,9,13)]) 
+        mat1 = Mat([(7,5,24), (2,9,13), (1,4,18)]) 
+        mat2 = Mat([(7,5,24), (2,9,13), (1,4,18)]) 
+        mat3 = Mat([(7,5,24), (2,9,13)]) 
         self.assertEqual(mat1, mat1)
         self.assertEqual(mat1, mat2)
         self.assertNotEqual(mat1, mat3)
@@ -356,8 +371,9 @@ class MatrixTest(unittest.TestCase):
         mat1 = [[7,0,24], [0,0,13], [1,4,18]]
         mat2 = [[7,5,0], [2,9,0], [1,4,18]]
         res = (np.array(mat1) + np.array(mat2)).tolist()
-        self.assertEqual(DenseMatrix(mat1) + DenseMatrix(mat2), DenseMatrix(res) )                
+        self.assertEqual(Mat(mat1) + Mat(mat2), Mat(res) )                
     
+
     def test_mat_by_vec_mul(self):
         import numpy as np
         mat = [[1,0,3],
@@ -366,7 +382,7 @@ class MatrixTest(unittest.TestCase):
                [0],
                [3]]
         res = np.array(mat).dot(np.array(vec)).tolist()        
-        self.assertEqual(DenseMatrix(mat) * DenseMatrix(vec), DenseMatrix(res))
+        self.assertEqual(Mat(mat) * Mat(vec), Mat(res))
 
     def test_vec_by_mat_mul(self):
         import numpy as np
@@ -376,8 +392,7 @@ class MatrixTest(unittest.TestCase):
                 [9, 0, 7, 0] ]        
         
         res = np.array(vec).dot(np.array(mat)).tolist()
-        self.assertEqual(DenseMatrix(vec) * DenseMatrix(mat), DenseMatrix(res))
-
+        self.assertEqual(Mat(vec) * Mat(mat), Mat(res))
 # Main
 def main():
 
